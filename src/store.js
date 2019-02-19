@@ -25,21 +25,27 @@ const initStore = () => {
         sagaMiddleware,
         ...getMiddlewares()
     ];
-    let reducer = combineReducers(getReducers());
-
+    const reducer = combineReducers(getReducers());
     const storageKey = getStorageKey();
-    if (storageKey) {
-        engine = filter(
-            createLocalSorageEngine(storageKey),
-            getStorageWhitelistedKeys(),
-            getStorageBlacklistedKeys()
-        );
-        reducer = storage.reducer(reducer);
-        middlewares.push(storage.createMiddleware(engine));
+
+    if (!storageKey) {
+        store = createStore(reducer, applyMiddleware(...middlewares));
+        sagaMiddleware.run(rootSaga);
+        return;
     }
 
-    const createStoreWithMiddleware = applyMiddleware(...middlewares)(createStore);
-    store = createStoreWithMiddleware(reducer);
+    engine = filter(
+        createLocalSorageEngine(storageKey),
+        getStorageWhitelistedKeys(),
+        getStorageBlacklistedKeys()
+    );
+
+    const createStoreWithMiddleware = applyMiddleware(
+        ...middlewares,
+        storage.createMiddleware(engine)
+    )(createStore);
+
+    store = createStoreWithMiddleware(storage.reducer(reducer));
 
     sagaMiddleware.run(rootSaga);
 };
