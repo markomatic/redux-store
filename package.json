@@ -1,7 +1,7 @@
 {
   "name": "@markomatic/redux-store",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "build/index.js",
   "author": "Marko Matić <mail.marko.matic@gmail.com>",
   "license": "MIT",
   "dependencies": {
